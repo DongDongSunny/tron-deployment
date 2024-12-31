@@ -12,5 +12,8 @@ fi
 curl -o $CONF_PATH/private_net_config_others.conf https://raw.githubusercontent.com/DongDongSunny/tron-deployment/master/private_net/private_net_config_others.conf
 curl -o $CONF_PATH/private_net_config_witness.conf https://raw.githubusercontent.com/DongDongSunny/tron-deployment/master/private_net/private_net_config_witness.conf
 
+# Download snapshot data if you need prefill transaction data
+# put snapshot database into different files for different nodes $CONF_PATH/datadir
+
 # Run Docker Compose
 docker-compose up -d
