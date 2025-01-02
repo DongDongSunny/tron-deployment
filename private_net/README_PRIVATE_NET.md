@@ -101,13 +101,13 @@ Finally, change docker-compose.yml ports mapping.
 
 **Witness setting**
 
-Make sure only one witness set `needSyncCheck = false`, the rest witness and other fullnodes all set `true`. As it will make the first witness as
+Make sure only one SR witness set `needSyncCheck = false`, the rest witness and other fullnodes all set `true`. This will make sure only one source of truth for block data.
 ```
 block = {
   needSyncCheck = true # only one SR witness set false, the rest all false
 ```
 
-If you want to add more witness, add below changes to `genesis.block` for all configuration files. As tron will use this to initialize the genesis block.
+If you want to add more witness, add below changes to `genesis.block` for all configuration files. As tron will use this to initialize the genesis block, nodes with different genesis block will be disconnected.
 
 ```
 genesis.block {
