@@ -51,15 +51,13 @@ After initialization, it should show messages about syncing blocks, just followi
 
 Check the [docker-compose.yml](https://github.com/tronprotocol/tron-deployment/blob/master/private_net/docker-compose.yml), the two container services use the same tron image with different configurations.
 
-`ports`: Used in tron_witness service are exposed for p2p node discovery and API request. These ports
-also need properly set in both configuration files, which will be explained later with more detail.
+`ports`: Used in tron_witness service are exposed for API request to interact with Tron private network.
 
 `command`: Used for Java-Tron image start-up arguments.
 - `-jvm` is used for Java Virtual Machine parameters, which must be enclosed in double quotes and braces. `"{-Xmx10g -Xms10g}"` sets the maximum and initial heap size to 10GB.
 - `-c` defines the configuration file to use.
-- `-d` defines the database file to use. You can mount a directory for `datadir` with snapshots. Please refer to [**Lite-FullNode**](https://tronprotocol.github.io/documentation-en/using_javatron/backup_restore/#_5). This will populate the private network with some real transaction data.
+- `-d` defines the database file to use. By mounting a local data directory, it ensures that the block data is persistent.
 - `-w` means to start as a witness. You need to fill the `localwitness` field with private keys in the configuration file. Refer to the [**Run as Witness**](https://tronprotocol.github.io/documentation-en/using_javatron/installing_javatron/#startup-a-fullnode-that-produces-blocks).
-
 
 ## Run with customized configure
 
@@ -67,37 +65,7 @@ If you want to add more witness or other syncing fullnodes, you need to make bel
 
 **Add more services in docker-compose.yml**
 
-Follow the commented `tron_witness2` and `tron_node2` to add more witness and other fullnodes, make sure the ports mapping and configuration files changed accordingly following below details.
-
-**P2P node discovery setting**
-
-In witness configure file, set below used for p2p peer nodes discovery.
-```
-node { 
-  listen.port = 1888x
-  ... 
-} 
-```
-
-Then in others configure file add `witness container name:1888x`.
-```
-seed.node = {
-  ip.list = [
-    # used for docker deployment, to connect containers in tron_witness defined in docker-compose.yml
-    "tron_witness1:18888",
-    "tron_witness2:18887",
-    ... 
-  ]
-}
-```
-
-Finally, change docker-compose.yml ports mapping.
-
-```
-    ports:                               
-      - "1888x:1888x"
-      - "1888x:1888x/udp"
-```
+Refer containers `tron_witness2` and `tron_node2` to add more witness and other fullnodes, make sure the configuration files changed accordingly following below details.
 
 **Witness setting**
 
@@ -107,20 +75,27 @@ block = {
   needSyncCheck = true # only one SR witness set false, the rest all false
 ```
 
-If you want to add more witness, add below changes to `genesis.block` for all configuration files. As tron will use this to initialize the genesis block, nodes with different genesis block will be disconnected.
+If you want to add more witnesses:
+- First, add the witness private key to the `localwitness` field in the witness configuration file.
+- Then, add initial values to the `genesis.block` in all configuration files. Tron will use this to initialize the genesis block, and nodes with different genesis blocks will be disconnected.
 
 ```
+localwitness = [
+  # public address TCjptjyjenNKB2Y6EwyVT43DQyUUorxKWi
+  0ab0b4893c83102ed7be35eee6d50f081625ac75a07da6cb58b1ad2e9c18ce43  # you must enable this value and the witness address are match.
+]
+
 genesis.block {
-   assets = [
+   assets = [ # set account initial balance
    ...
-      {
+      { 
           accountName = "TestE"
           accountType = "AssetIssue"
           address = "TCjptjyjenNKB2Y6EwyVT43DQyUUorxKWi"
           balance = "1000000000000000"
       }
    ]
-   witnesses = [
+   witnesses = [ # set witness account initial vote count
     ...
     {
       address: TCjptjyjenNKB2Y6EwyVT43DQyUUorxKWi,
@@ -131,12 +106,74 @@ genesis.block {
     
 ```
 
+**P2P node discovery setting**
 
-Thus, if you want to add more witnesses or other normal syncing fullnode services, just add the corresponding services in the docker-compose.yml file. To avoid port conflicts, make sure you differentiate the port mappings and change the corresponding values in the respective configuration files.
+In witness configure file, make sure `node.listen.port` is set for p2p peer discovery.
+```
+node { 
+  listen.port = 18888
+  ... 
+} 
+```
 
+Then, in other configuration files, add witness `container_name:port` to connect to the newly added witness fullnodes.
+```
+seed.node = {
+  ip.list = [
+    # used for docker deployment, to connect containers in tron_witness defined in docker-compose.yml
+    "tron_witness1:18888",
+    "tron_witness2:18888",
+    ... 
+  ]
+}
+```
 
 ## Interact with Tron Private Network
+For private networks started use this [docker-compose.yml](https://github.com/tronprotocol/tron-deployment/blob/master/private_net/docker-compose.yml) from GitHub. 
+Notice the ports mapping:
+```
+ports:
+- "8090:8090"       # for external http API request
+- "50051:50051"     # for external rpc API request, for example through wallet-cli
+```
+After the network runs successfully, you can interact with it using the HTTP API or wallet-cli.
+For example, a request to get genesis block info:
+```
+curl --location 'localhost:8090/wallet/getblock' \
+--header 'Content-Type: application/json' \
+--data '{
+    "id_or_num": "0",
+    "detail": true
+}'
+```
+It should return transactions with type `TransferContract` for asset initialization set in `genesis.block` in configuration files.
+```
+{
+    "blockID": "0000000000000000ad12b5787243011231c77e867e36f54ecb20b4b38ac594b8",
+    "block_header": {
+        "raw_data": {
+            "txTrieRoot": "bf467bbfc436b1690f1c5d0d650ac4012fa2ff304f4e99bd487f90c8718e65ca",
+            "witness_address": "41206e65772073797374656d206d75737420616c6c6f77206578697374696e672073797374656d7320746f206265206c696e6b656420746f67657468657220776974686f757420726571756972696e6720616e792063656e7472616c20636f6e74726f6c206f7220636f6f7264696e6174696f6e",
+            "parentHash": "957dc2d350daecc7bb6a38f3938ebde0a0c1cedafe15f0edae4256a2907449f6"
+        }
+    },
+    "transactions": [
+        ...
+    ]
 
+```
+If you request block info with num greater than 0, it should return empty response. As there is no transaction triggered.
+For more API usage, please refer to [guidance](https://tronprotocol.github.io/documentation-en/getting_started/getting_started_with_javatron/#interacting-with-java-tron-nodes-using-curl).
+
+To easily trigger a transaction on Tron network, [wallet-cli](https://tronprotocol.github.io/documentation-en/clients/wallet-cli/) is recommended. Refer the installation [guidance](https://github.com/tronprotocol/wallet-cli), make sure you edit config.conf in [src/main/resources](https://github.com/tronprotocol/wallet-cli/blob/develop/src/main/resources/config.conf) as below:
+```
+fullnode = {
+  ip.list = [
+    "localhost:50051" # or any value private network hosted
+  ]
+}
+```
+Wallet-cli will connect to your local private network. Then register or import wallet, you could trigger transaction easily. Check wallet-cli API usage [here](https://tronprotocol.github.io/documentation-en/clients/wallet-cli-command/#registerwallet).
 
 ## Troubleshot
 If you encounter any difficulties, please refer to the [Issue Work Flow](https://tronprotocol.github.io/documentation-en/developers/issue-workflow/#issue-work-flow), then raise an issue on [GitHub](https://github.com/tronprotocol/java-tron/issues). For general questions please use [Discord](https://discord.gg/cGKSsRVCGm) or [Telegram](https://t.me/TronOfficialDevelopersGroupEn).

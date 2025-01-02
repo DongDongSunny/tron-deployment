@@ -11,25 +11,24 @@ services:
       - "50051:50051"     # for external rpc API request
     volumes:
       - ./conf:/java-tron/conf
-      - ./datadir:/java-tron/data
+      - ./datadir:/java-tron/data # mount a local directory to make the blocks data persistent.
     command: > 
         -jvm "{-Xmx10g}"
         -c /java-tron/conf/private_net_config_witness1.conf
         -d /java-tron/data 
         -w
 
-  tron_witness2:
-    image: tronprotocol/java-tron:latest
-    container_name: tron_witness2         # change container_name
-    networks:
-      - tron_private_network
-    volumes:
-      - ./conf:/java-tron/conf
-    command: >
-      -jvm "{-Xmx10g}"
-      -c /java-tron/conf/private_net_config_witness2.conf
-      -d /java-tron/data
-      -w
+#  tron_witness2:
+#    image: tronprotocol/java-tron:latest
+#    container_name: tron_witness2         # change container_name
+#    networks:
+#      - tron_private_network
+#    volumes:
+#      - ./conf:/java-tron/conf
+#    command: >
+#      -jvm "{-Xmx10g}"
+#      -c /java-tron/conf/private_net_config_witness2.conf
+#      -w
 
   tron_node1:
     image: tronprotocol/java-tron:latest
@@ -41,7 +40,6 @@ services:
     command: >
       -jvm "{-Xmx10g}"
       -c /java-tron/conf/private_net_config_others.conf
-      -d /java-tron/data 
 
 #  tron_node2:
 #    image: tronprotocol/java-tron:latest
@@ -53,7 +51,6 @@ services:
 #    command: >
 #      -jvm "{-Xmx10g}"
 #      -c /java-tron/conf/private_net_config_others.conf
-#      -d /java-tron/data
 
 networks:
   tron_private_network:
