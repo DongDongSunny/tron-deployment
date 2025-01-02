@@ -107,6 +107,31 @@ block = {
   needSyncCheck = true # only one SR witness set false, the rest all false
 ```
 
+If you want to add more witness, add below changes to `genesis.block` for all configuration files. As tron will use this to initialize the genesis block.
+
+```
+genesis.block {
+   assets = [
+   ...
+      {
+          accountName = "TestE"
+          accountType = "AssetIssue"
+          address = "TCjptjyjenNKB2Y6EwyVT43DQyUUorxKWi"
+          balance = "1000000000000000"
+      }
+   ]
+   witnesses = [
+    ...
+    {
+      address: TCjptjyjenNKB2Y6EwyVT43DQyUUorxKWi,
+      url = "http://example.com",
+      voteCount = 5000
+    }
+  ]
+    
+```
+
+
 Thus, if you want to add more witnesses or other normal syncing fullnode services, just add the corresponding services in the docker-compose.yml file. To avoid port conflicts, make sure you differentiate the port mappings and change the corresponding values in the respective configuration files.
 
 
