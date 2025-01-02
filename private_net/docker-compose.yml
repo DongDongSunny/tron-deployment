@@ -14,7 +14,7 @@ services:
       - ./datadir:/java-tron/data
     command: > 
         -jvm "{-Xmx10g}"
-        -c /java-tron/conf/private_net_config_witness.conf
+        -c /java-tron/conf/private_net_config_witness1.conf
         -d /java-tron/data 
         -w
 
