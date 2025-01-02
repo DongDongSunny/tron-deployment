@@ -67,22 +67,23 @@ If you want to add more witness or other syncing fullnodes, you need to make bel
 
 **Add more services in docker-compose.yml**
 
+Follow the commented `tron_witness2` and `tron_node2` to add more witness and other fullnodes, make sure the ports mapping and configuration files changed accordingly following below details.
+
 **P2P node discovery setting**
 
 In witness configure file, set below used for p2p peer nodes discovery.
 ```
 node { 
-  listen.port = 1888X 
+  listen.port = 1888x
   ... 
 } 
 ```
- 
 
-Then in others conf add `witness container name:1888X`
+Then in others configure file add `witness container name:1888x`.
 ```
 seed.node = {
   ip.list = [
-    # used for docker deployment, to connect container named in tron_witness, defined in docker-compose.yml
+    # used for docker deployment, to connect containers in tron_witness defined in docker-compose.yml
     "tron_witness1:18888",
     "tron_witness2:18887",
     ... 
@@ -90,7 +91,21 @@ seed.node = {
 }
 ```
 
-witness setting
+Finally, change docker-compose.yml ports mapping.
+
+```
+    ports:                               
+      - "1888x:1888x"
+      - "1888x:1888x/udp"
+```
+
+**Witness setting**
+
+Make sure only one witness set `needSyncCheck = false`, the rest witness and other fullnodes all set `true`. As it will make the first witness as
+```
+block = {
+  needSyncCheck = true # only one SR witness set false, the rest all false
+```
 
 Thus, if you want to add more witnesses or other normal syncing fullnode services, just add the corresponding services in the docker-compose.yml file. To avoid port conflicts, make sure you differentiate the port mappings and change the corresponding values in the respective configuration files.
 
