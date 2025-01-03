@@ -243,7 +243,7 @@ fullnode = {
   ]
 }
 ```
-Wallet-cli will connect to your local private network. After registering or importing a wallet, you can easily trigger transactions. Check wallet-cli API usage [here](https://tronprotocol.github.io/documentation-en/clients/wallet-cli-command/#registerwallet).
+Wallet-cli will connect to your local private network. After registering or importing a wallet, you can easily sign and broadcast transactions. Check wallet-cli API usage [here](https://tronprotocol.github.io/documentation-en/clients/wallet-cli-command/#registerwallet).
 
 ## Troubleshooting
 If you encounter any difficulties, please refer to the [Issue Work Flow](https://tronprotocol.github.io/documentation-en/developers/issue-workflow/#issue-work-flow), then raise an issue on [GitHub](https://github.com/tronprotocol/java-tron/issues). For general questions, please use [Discord](https://discord.gg/cGKSsRVCGm) or [Telegram](https://t.me/TronOfficialDevelopersGroupEn).
