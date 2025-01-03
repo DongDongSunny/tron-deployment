@@ -231,7 +231,7 @@ It should return transactions with the type `TransferContract` for asset initial
     ]
 
 ```
-If you request block info with a number greater than 0, it should return an empty response, as there are no transactions triggered.
+If you request block info with a number greater than 0, it should return block_header only, as there are no transactions triggered.
 
 For more API usage, please refer to the [guidance](https://tronprotocol.github.io/documentation-en/getting_started/getting_started_with_javatron/#interacting-with-java-tron-nodes-using-curl).
 
