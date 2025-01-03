@@ -1,8 +1,8 @@
 # Private Network
 
-Here are the quick-start for setting up a Tron private network using Docker.
+Here is a quick-start guide for setting up a Tron private network using Docker.
 
-A private chain needs at least one fullnode running by [SR](https://tronprotocol.github.io/documentation-en/mechanism-algorithm/sr/) to produces blocks, and any number of fullnodes to synchronize blocks and broadcast transactions.
+A private chain needs at least one full node run by a [Super Representative (SR)](https://tronprotocol.github.io/documentation-en/mechanism-algorithm/sr/) to produce blocks, and any number of full nodes to synchronize blocks and broadcast transactions.
 
 ## Prerequisites
 
@@ -11,7 +11,6 @@ A private chain needs at least one fullnode running by [SR](https://tronprotocol
 - 32GB RAM
 - 100GB free storage space
 
-
 ### Docker
 
 Please download and install the latest version of Docker from the official Docker website:
@@ -19,17 +18,17 @@ Please download and install the latest version of Docker from the official Docke
 * Docker Installation for [Windows](https://docs.docker.com/docker-for-windows/install/)
 
 ## Quick-Start Using Docker
-Download the files [private_network_quick_start.sh](https://github.com/tronprotocol/tron-deployment/blob/master/private_net/private_network_quick_start.sh) and [docker-compose.yml](https://github.com/tronprotocol/tron-deployment/blob/master/private_net/docker-compose.yml) from GitHub. Place them in the same directory and run the quick start shell script. 
+Download the files [private_network_quick_start.sh](https://github.com/tronprotocol/tron-deployment/blob/master/private_net/private_network_quick_start.sh) and [docker-compose.yml](https://github.com/tronprotocol/tron-deployment/blob/master/private_net/docker-compose.yml) from GitHub. Place them in the same directory and run the quick start shell script.
 ```
 chmod +x private_network_quick_start.sh
 ./private_network_quick_start.sh 
 ```
-The shell script just downloads two configuration files and starts the Docker composer.
+The shell script downloads two configuration files and starts the Docker composer.
 A Tron private network will be started with one [SR](https://tronprotocol.github.io/documentation-en/mechanism-algorithm/sr/#super-representative) and a normal FullNode.
 
-Check the witness logs by running below command:
+Check the witness logs by running the command below:
 ```
-docker exec -it tron_witness tail -f ./logs/tron.log
+docker exec -it tron_witness1 tail -f ./logs/tron.log
 ```
 Normally, it should show the witness initializing the database and network, then starting to produce blocks every 3 seconds.
 ```
@@ -38,10 +37,11 @@ Normally, it should show the witness initializing the database and network, then
 01:58:06.162 INFO  [DPosMiner] [net](AdvService.java:200) Ready to broadcast block Num:1,ID:00000000000001206a3e24f26aa0c31033349e2cffab07f741061728a79a55b3
 01:58:06.183 INFO  [DPosMiner] [DB](Manager.java:1233) Block num: 1, re-push-size: 0, pending-size: 0, block-tx-size: 0, verify-tx-size: 0
 ```
-It also connects with the other fullnodes with log:
+It also connects with the other full nodes with the log:
+
 ```Peer stats: channels 1, activePeers 1, active 0, passive 1```。
 
-Check the other fullnode logs by running below command:
+Check the other full node logs by running the command below:
 ```
 docker exec -it tron_node1 tail -f ./logs/tron.log
 ```
@@ -49,15 +49,15 @@ After initialization, it should show messages about syncing blocks, just followi
 
 **What docker-compose do?**
 
-Check the [docker-compose.yml](https://github.com/tronprotocol/tron-deployment/blob/master/private_net/docker-compose.yml), the two container services use the same tron image with different configurations.
+Check the [docker-compose.yml](https://github.com/tronprotocol/tron-deployment/blob/master/private_net/docker-compose.yml), the two container services use the same Tron image with different configurations.
 
-`ports`: Used in tron_witness service are exposed for API request to interact with Tron private network.
+- `ports`: Used in the tron_witness service are exposed for API requests to interact with the Tron private network.
 
-`command`: Used for Java-Tron image start-up arguments.
-- `-jvm` is used for Java Virtual Machine parameters, which must be enclosed in double quotes and braces. `"{-Xmx10g -Xms10g}"` sets the maximum and initial heap size to 10GB.
-- `-c` defines the configuration file to use.
-- `-d` defines the database file to use. By mounting a local data directory, it ensures that the block data is persistent.
-- `-w` means to start as a witness. You need to fill the `localwitness` field with private keys in the configuration file. Refer to the [**Run as Witness**](https://tronprotocol.github.io/documentation-en/using_javatron/installing_javatron/#startup-a-fullnode-that-produces-blocks).
+- `command`: Used for Java-Tron image start-up arguments.
+    - `-jvm` is used for Java Virtual Machine parameters, which must be enclosed in double quotes and braces. `"{-Xmx10g -Xms10g}"` sets the maximum and initial heap size to 10GB.
+    - `-c` defines the configuration file to use.
+    - `-d` defines the database file to use. By mounting a local data directory, it ensures that the block data is persistent.
+    - `-w` means to start as a witness. You need to fill the `localwitness` field with private keys in the configuration file. Refer to [**Run as Witness**](https://tronprotocol.github.io/documentation-en/using_javatron/installing_javatron/#startup-a-fullnode-that-produces-blocks).
 
 ## Run with customized configure
 
@@ -65,11 +65,11 @@ If you want to add more witness or other syncing fullnodes, you need to make bel
 
 **Add more services in docker-compose.yml**
 
-Refer containers `tron_witness2` and `tron_node2` to add more witness and other fullnodes, make sure the configuration files changed accordingly following below details.
+Inside the docker-compose.yml, refer to the commented containers `tron_witness2` and `tron_node2`. Make sure the configuration files are changed accordingly, following the details below.
 
 **Common Settings**
 
-For all configurations, you need to set `node.p2p.version` to a same value and `node.discovery.enable = true`.
+For all configurations, you need to set `node.p2p.version` to the same value and `node.discovery.enable = true`.
 ```
 node {
  p2p {
@@ -86,14 +86,15 @@ node.discovery = {
 
 **Witness Setting**
 
-Make sure only one SR witness set `needSyncCheck = false`, the rest witness and other fullnodes all set `true`. This will make sure only one source of truth for block data.
+Make sure only one SR witness sets `needSyncCheck = false`, while the rest of the witnesses and other fullnodes set it to `true`. This ensures that there is only one source of truth for block data.
 ```
 block = {
   needSyncCheck = true # only one SR witness set false, the rest all false
 ```
 
 If you want to add more witnesses:
-- First, add the witness private key to the `localwitness` field in the witness configuration file.
+
+- First, add the witness private key to the `localwitness` field in the corresponding witness configuration file.
 - Then, add initial values to the `genesis.block` for all configuration files. Tron will use this to initialize the genesis block, and nodes with different genesis blocks will be disconnected.
 
 ```
@@ -145,25 +146,25 @@ seed.node = {
 }
 ```
 ### Advanced Configuration
-Beside the above simple settings, there are a lot of fields you can modify to customize the behaviour of private networks. The configurations that you can change, though not exhaustively listed, include:
-- ethereum compatible virtual machine in `vm = {...}`
-- block settings
-- network more detail settings for node discovery and connections, http and rpc service etc.
-- enable or disable part of committee approved proposals
-- [event subscription ](https://tronprotocol.github.io/documentation-en/architecture/event/#configure-node)
-- [database configuration](https://tronprotocol.github.io/documentation-en/architecture/database/#database-configuration)
+Besides the above settings, there are many fields you can modify to customize the behavior of private networks. The configurations that you can change, though not exhaustively listed, include:
 
-**Notice**: Make sure your changes is consistent among all configuration files, especially the SRs, as it may affect the block generation logic.
+- Ethereum compatible virtual machine in `vm = {...}`
+- Block settings
+- Network details for node discovery and connections, HTTP and RPC services, etc.
+- Enable or disable parts of committee-approved proposals
+- [Event subscription](https://tronprotocol.github.io/documentation-en/architecture/event/#configure-node)
+- [Database configuration](https://tronprotocol.github.io/documentation-en/architecture/database/#database-configuration)
 
-For example, you could change these block settings to a smaller value, to speed up the maintenance or proposal logic changes:
+**Notice**: Make sure your changes are consistent among all configuration files, especially for the SRs, as inconsistencies may affect the block generation logic.
 
+For example, you could change these block settings to smaller values to speed up maintenance or proposal logic changes:
 ```
 block = {
   maintenanceTimeInterval = 300000 # 5mins, default is 6 hours
   proposalExpireTime = 600000 # 10mins, default is 3 days
 }
 ``` 
-You could also enable below committee approved settings with `1`:
+You could also enable the following committee-approved settings with `1`:
 ```
 allowCreationOfContracts
 allowMultiSign
@@ -172,18 +173,17 @@ allowDelegateResource
 allowSameTokenName
 allowTvmTransferTrc10
 ```
-For more detailed logic, you can refer to the detailed [logic](https://github.com/tronprotocol/java-tron/blob/develop/common/src/main/java/org/tron/common/parameter/CommonParameter.java). If you encounter any difficulties, please seek help in [Telegram](https://t.me/TronOfficialDevelopersGroupEn).
-
+If you encounter any difficulties or need more customized operations, check the Troubleshooting section below.
 
 ## Interact with Tron Private Network
-For private networks started use this [docker-compose.yml](https://github.com/tronprotocol/tron-deployment/blob/master/private_net/docker-compose.yml) from GitHub. 
-Notice the ports mapping:
+For private networks started using this [docker-compose.yml](https://github.com/tronprotocol/tron-deployment/blob/master/private_net/docker-compose.yml) from GitHub, notice the ports mapping:
 ```
 ports:
-- "8090:8090"       # for external http API request
-- "50051:50051"     # for external rpc API request, for example through wallet-cli
+- "8090:8090"       # for external HTTP API requests
+- "50051:50051"     # for external RPC API requests, for example through wallet-cli
 ```
 After the network runs successfully, you can interact with it using the HTTP API or wallet-cli.
+
 For example, a request to get genesis block info:
 ```
 curl --location 'localhost:8090/wallet/getblock' \
@@ -193,7 +193,7 @@ curl --location 'localhost:8090/wallet/getblock' \
     "detail": true
 }'
 ```
-It should return transactions with type `TransferContract` for asset initialization set in `genesis.block` in configuration files.
+It should return transactions with the type `TransferContract` for asset initialization set in the `genesis.block` in the configuration files.
 ```
 {
     "blockID": "0000000000000000ad12b5787243011231c77e867e36f54ecb20b4b38ac594b8",
@@ -209,10 +209,11 @@ It should return transactions with type `TransferContract` for asset initializat
     ]
 
 ```
-If you request block info with num greater than 0, it should return empty response. As there is no transaction triggered.
-For more API usage, please refer to [guidance](https://tronprotocol.github.io/documentation-en/getting_started/getting_started_with_javatron/#interacting-with-java-tron-nodes-using-curl).
+If you request block info with a number greater than 0, it should return an empty response, as there are no transactions triggered.
 
-To easily trigger a transaction on Tron network, [wallet-cli](https://tronprotocol.github.io/documentation-en/clients/wallet-cli/) is recommended. Refer the installation [guidance](https://github.com/tronprotocol/wallet-cli), make sure you edit config.conf in [src/main/resources](https://github.com/tronprotocol/wallet-cli/blob/develop/src/main/resources/config.conf) as below:
+For more API usage, please refer to the [guidance](https://tronprotocol.github.io/documentation-en/getting_started/getting_started_with_javatron/#interacting-with-java-tron-nodes-using-curl).
+
+To easily trigger a transaction on the Tron network, [wallet-cli](https://tronprotocol.github.io/documentation-en/clients/wallet-cli/) is recommended. Refer to the installation [guidance](https://github.com/tronprotocol/wallet-cli). Make sure you edit `config.conf` in [src/main/resources](https://github.com/tronprotocol/wallet-cli/blob/develop/src/main/resources/config.conf) as below:
 ```
 fullnode = {
   ip.list = [
@@ -220,10 +221,10 @@ fullnode = {
   ]
 }
 ```
-Wallet-cli will connect to your local private network. Then register or import wallet, you could trigger transaction easily. Check wallet-cli API usage [here](https://tronprotocol.github.io/documentation-en/clients/wallet-cli-command/#registerwallet).
+Wallet-cli will connect to your local private network. After registering or importing a wallet, you can easily trigger transactions. Check wallet-cli API usage [here](https://tronprotocol.github.io/documentation-en/clients/wallet-cli-command/#registerwallet).
 
-## Troubleshot
-If you encounter any difficulties, please refer to the [Issue Work Flow](https://tronprotocol.github.io/documentation-en/developers/issue-workflow/#issue-work-flow), then raise an issue on [GitHub](https://github.com/tronprotocol/java-tron/issues). For general questions please use [Discord](https://discord.gg/cGKSsRVCGm) or [Telegram](https://t.me/TronOfficialDevelopersGroupEn).
+## Troubleshooting
+If you encounter any difficulties, please refer to the [Issue Work Flow](https://tronprotocol.github.io/documentation-en/developers/issue-workflow/#issue-work-flow), then raise an issue on [GitHub](https://github.com/tronprotocol/java-tron/issues). For general questions, please use [Discord](https://discord.gg/cGKSsRVCGm) or [Telegram](https://t.me/TronOfficialDevelopersGroupEn).
 
-# Advance
+# Advanced
 To set up a private network natively, refer to the [Deployment Guide](https://tronprotocol.github.io/documentation-en/using_javatron/private_network/). Make sure you set up all the configuration parameters correctly.
