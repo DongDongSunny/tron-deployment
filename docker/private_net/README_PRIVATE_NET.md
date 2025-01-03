@@ -2,7 +2,7 @@
 
 Here is a quick-start guide for setting up a Tron private network using Docker.
 
-A private chain needs at least one full node run by a [Super Representative (SR)](https://tronprotocol.github.io/documentation-en/mechanism-algorithm/sr/) to produce blocks, and any number of full nodes to synchronize blocks and broadcast transactions.
+A private chain needs at least one fullnode run by a [Super Representative (SR)](https://tronprotocol.github.io/documentation-en/mechanism-algorithm/sr/) to produce blocks, and any number of fullnodes to synchronize blocks and broadcast transactions.
 
 ## Prerequisites
 
@@ -18,13 +18,12 @@ Please download and install the latest version of Docker from the official Docke
 * Docker Installation for [Windows](https://docs.docker.com/docker-for-windows/install/)
 
 ## Quick-Start Using Docker
-Download the files [private_network_quick_start.sh](https://github.com/tronprotocol/tron-deployment/blob/master/private_net/private_network_quick_start.sh) and [docker-compose.yml](https://github.com/tronprotocol/tron-deployment/blob/master/private_net/docker-compose.yml) from GitHub. Place them in the same directory and run the quick start shell script.
+Download the files [private_network_quick_start.sh](https://github.com/tronprotocol/tron-deployment/blob/master/docker/private_net/private_network_quick_start.sh) and [docker-compose.yml](https://github.com/tronprotocol/tron-deployment/blob/master/docker/private_net/docker-compose.yml) from GitHub. Place them in the same directory and run the quick start shell script.
 ```
 chmod +x private_network_quick_start.sh
 ./private_network_quick_start.sh 
 ```
-The shell script downloads two configuration files and starts the Docker composer.
-A Tron private network will be started with one [SR](https://tronprotocol.github.io/documentation-en/mechanism-algorithm/sr/#super-representative) and a normal FullNode.
+The shell script downloads two configuration files and starts the Docker composer. A Tron private network will be started with one [SR](https://tronprotocol.github.io/documentation-en/mechanism-algorithm/sr/#super-representative) and a normal FullNode.
 
 Check the witness logs by running the command below:
 ```
@@ -39,9 +38,11 @@ Normally, it should show the witness initializing the database and network, then
 ```
 It also connects with the other full nodes with the log:
 
-```Peer stats: channels 1, activePeers 1, active 0, passive 1```。
+```
+Peer stats: channels 1, activePeers 1, active 0, passive 1
+```
 
-Check the other full node logs by running the command below:
+Check the other fullnode logs by running the command below:
 ```
 docker exec -it tron_node1 tail -f ./logs/tron.log
 ```
@@ -49,9 +50,9 @@ After initialization, it should show messages about syncing blocks, just followi
 
 **What docker-compose do?**
 
-Check the [docker-compose.yml](https://github.com/tronprotocol/tron-deployment/blob/master/private_net/docker-compose.yml), the two container services use the same Tron image with different configurations.
+Check the [docker-compose.yml](https://github.com/tronprotocol/tron-deployment/blob/master/docker/private_net/docker-compose.yml), the two container services use the same Tron image with different configurations.
 
-- `ports`: Used in the tron_witness service are exposed for API requests to interact with the Tron private network.
+- `ports`: Used in the tron_witness1 service are exposed for API requests to interact with the Tron private network.
 
 - `command`: Used for Java-Tron image start-up arguments.
     - `-jvm` is used for Java Virtual Machine parameters, which must be enclosed in double quotes and braces. `"{-Xmx10g -Xms10g}"` sets the maximum and initial heap size to 10GB.
@@ -90,11 +91,13 @@ Make sure only one SR witness sets `needSyncCheck = false`, while the rest of th
 ```
 block = {
   needSyncCheck = true # only one SR witness set false, the rest all false
+  ...
+}
 ```
 
 If you want to add more witnesses:
 
-- First, add the witness private key to the `localwitness` field in the corresponding witness configuration file.
+- First, add the witness private key to the `localwitness` field in the corresponding witness configuration file. If you don't want to use this way of specifying the private key in plain text, you can use the [keystore + password](https://tronprotocol.github.io/documentation-en/using_javatron/installing_javatron/#others) method.
 - Then, add initial values to the `genesis.block` for all configuration files. Tron will use this to initialize the genesis block, and nodes with different genesis blocks will be disconnected.
 
 ```
@@ -176,7 +179,7 @@ allowTvmTransferTrc10
 If you encounter any difficulties or need more customized operations, check the Troubleshooting section below.
 
 ## Interact with Tron Private Network
-For private networks started using this [docker-compose.yml](https://github.com/tronprotocol/tron-deployment/blob/master/private_net/docker-compose.yml) from GitHub, notice the ports mapping:
+For private networks started using this [docker-compose.yml](https://github.com/tronprotocol/tron-deployment/blob/master/docker/private_net/docker-compose.yml) from GitHub, notice the ports mapping:
 ```
 ports:
 - "8090:8090"       # for external HTTP API requests
@@ -193,7 +196,7 @@ curl --location 'localhost:8090/wallet/getblock' \
     "detail": true
 }'
 ```
-It should return transactions with the type `TransferContract` for asset initialization set in the `genesis.block` in the configuration files.
+It should return transactions with the type `TransferContract` for asset initialization set in the `genesis.block` in the configuration files. Notice the `parentHash` equals to the value you set in configure file.
 ```
 {
     "blockID": "0000000000000000ad12b5787243011231c77e867e36f54ecb20b4b38ac594b8",
@@ -205,6 +208,25 @@ It should return transactions with the type `TransferContract` for asset initial
         }
     },
     "transactions": [
+       {
+         "txID": "6a617c0667fd3a710a95d78d212a6e72df3c005ff7d3f53d3765cc81156151ea",
+            "raw_data": {
+                "contract": [
+                    {
+                        "parameter": {
+                            "value": {
+                                "amount": 95000000000000000, // initial balance
+                                "owner_address": "3078303030303030303030303030303030303030303030",
+                                "to_address": "41928c9af0651632157ef27a2cf17ca72c575a4d21" // hex format = public address TPL66VK2gCXNCD7EJg9pgJRfqcRazjhUZY
+                            },
+                            "type_url": "type.googleapis.com/protocol.TransferContract"
+                        },
+                        "type": "TransferContract"
+                    }
+                ]
+            },
+            "raw_data_hex": "5a6f0801126b0a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e7472616374123a0a173078303030303030303030303030303030303030303030121541928c9af0651632157ef27a2cf17ca72c575a4d21188080a6adf2bfe0a801"
+        },
         ...
     ]
 
@@ -213,7 +235,7 @@ If you request block info with a number greater than 0, it should return an empt
 
 For more API usage, please refer to the [guidance](https://tronprotocol.github.io/documentation-en/getting_started/getting_started_with_javatron/#interacting-with-java-tron-nodes-using-curl).
 
-To easily trigger a transaction on the Tron network, [wallet-cli](https://tronprotocol.github.io/documentation-en/clients/wallet-cli/) is recommended. Refer to the installation [guidance](https://github.com/tronprotocol/wallet-cli). Make sure you edit `config.conf` in [src/main/resources](https://github.com/tronprotocol/wallet-cli/blob/develop/src/main/resources/config.conf) as below:
+As you could notice, for now the block produced by SR contains 0 transaction. To send a transaction on Tron network, the data must be signed. To easily trigger a transaction on the Tron network, [wallet-cli](https://tronprotocol.github.io/documentation-en/clients/wallet-cli/) is recommended. Refer to the installation [guidance](https://github.com/tronprotocol/wallet-cli). Make sure you edit `config.conf` in [src/main/resources](https://github.com/tronprotocol/wallet-cli/blob/develop/src/main/resources/config.conf) as below:
 ```
 fullnode = {
   ip.list = [
