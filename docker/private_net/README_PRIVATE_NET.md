@@ -16,6 +16,7 @@ A private chain needs at least one fullnode run by a [Super Representative (SR)]
 Please download and install the latest version of Docker from the official Docker website:
 * Docker Installation for [Mac](https://docs.docker.com/docker-for-mac/install/)
 * Docker Installation for [Windows](https://docs.docker.com/docker-for-windows/install/)
+* Docker Installation for [Linux](https://docs.docker.com/desktop/setup/install/linux/)
 
 ## Quick-Start Using Docker
 Download the files [private_network_quick_start.sh](https://github.com/tronprotocol/tron-deployment/blob/master/docker/private_net/private_network_quick_start.sh) and [docker-compose.yml](https://github.com/tronprotocol/tron-deployment/blob/master/docker/private_net/docker-compose.yml) from GitHub. Place them in the same directory and run the quick start shell script.
