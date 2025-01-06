@@ -117,6 +117,11 @@ Please note that if you want to switch to a different network, such as Mainnet o
 - **Data Snapshot**:
   - Ensure that the data snapshot you download corresponds to the correct network.
 
+### Close Docker Application
+Java-Tron supports application shutdown with `kill -15`, which sends a `SIGTERM` signal to the application, allowing it to gracefully shut down. Java-Tron is also compatible with force shutdown using `kill -9`, which sends a `SIGKILL` signal.
+
+Thus, you can use the command `docker stop <container_id>` or `docker kill <container_id>` to close the Java-Tron container.
+
 ## Interact with FullNode
 After the fullnode runs successfully, you can interact with it using the HTTP API or wallet-cli. For more details, please refer to [guidance](https://tronprotocol.github.io/documentation-en/getting_started/getting_started_with_javatron/#interacting-with-java-tron-nodes-using-curl).
 
@@ -146,11 +151,6 @@ Response:
 }
 ```
 **Notice**: Before the local full node has synced with the latest block transactions, requests for account state or transaction information may be outdated or empty.
-
-### Close Docker Application 
-Java-Tron supports application shutdown with `kill -15`, which sends a `SIGTERM` signal to the application, allowing it to gracefully shut down. Java-Tron is also compatible with force shutdown using `kill -9`, which sends a `SIGKILL` signal. 
-
-Thus, you can use the command `docker stop <container_id>` or `docker kill <container_id>` to close the Java-Tron container.
 
 ## Troubleshot
 After starting the docker container, use `docker exec -it tron tail -f ./logs/tron.log` to check if the full node is functioning as expected and to identify any errors when interacting with the full node.
