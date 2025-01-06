@@ -103,11 +103,19 @@ Inside the `config-localtest.conf` file `node.p2p.version` is used to set the P2
 - Private network：set to other values
 
 Please note that if you want to switch to a different network, such as Mainnet or Nile, make sure you change the following:
-- In the configuration file：
-  - Set `genesis.block` equal with [Mainnet]((https://github.com/tronprotocol/tron-deployment/blob/master/main_net_config.conf#L454)) or [Nile Test](https://github.com/tronprotocol/tron-deployment/blob/master/test_net_config.conf#L426).
-  - Set `seed.node` with the correct IP list. Refer to the [Mainnet seeds](https://github.com/tronprotocol/tron-deployment/blob/master/main_net_config.conf#L410) and [Nile Testnet seeds](https://github.com/tronprotocol/tron-deployment/blob/master/test_net_config.conf#L404).
-  - Set `node.p2p.version` to the correct value.
-- Ensure that the data snapshot you download corresponds to the correct network.
+
+- **Configuration File**:
+  - For Mainnet, use [main_net_config.conf](https://github.com/tronprotocol/tron-deployment/blob/master/main_net_config.conf).
+  - For NileNet, use the configuration file available on this [page](https://nileex.io/join/getJoinPage).
+
+  The main differences between these two files are:
+  - `genesis.block`: Used for initial account asset setup.
+  - `seed.node`: Used for P2P nodes discovery.
+  - `node.p2p.version`: Differentiates the network.
+  - `block.maintenanceTimeInterval` and `block.proposalExpireTime`: Used for Tron core protocol.
+
+- **Data Snapshot**:
+  - Ensure that the data snapshot you download corresponds to the correct network.
 
 ## Interact with FullNode
 After the fullnode runs successfully, you can interact with it using the HTTP API or wallet-cli. For more details, please refer to [guidance](https://tronprotocol.github.io/documentation-en/getting_started/getting_started_with_javatron/#interacting-with-java-tron-nodes-using-curl).
