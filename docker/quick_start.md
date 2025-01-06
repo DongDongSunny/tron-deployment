@@ -109,7 +109,7 @@ Please note that if you want to switch to a different network, such as Mainnet o
   - For NileNet, use the configuration file available on this [page](https://nileex.io/join/getJoinPage).
 
   The main differences between these two files are:
-  - `genesis.block`: Used for initial account asset setup.
+  - `genesis.block`: Used for initial account asset and witness setup.
   - `seed.node`: Used for P2P nodes discovery.
   - `node.p2p.version`: Differentiates the network.
   - `block.maintenanceTimeInterval` and `block.proposalExpireTime`: Used for Tron core protocol.
