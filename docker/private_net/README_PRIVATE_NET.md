@@ -71,18 +71,13 @@ Inside the docker-compose.yml, refer to the commented containers `tron_witness2`
 
 **Common Settings**
 
-For all configurations, you need to set `node.p2p.version, block.maintenanceTimeInterval, block.proposalExpireTime` to the same value and `node.discovery.enable = true`.
+For all configurations, you need to set `node.p2p.version` to the same value and `node.discovery.enable = true`.
 ```
 node {
  p2p {
     version = 1 # 11111: mainnet; 20180622: nilenet; others for private networks. 
   }
   ...
-}
-
-block = {
-  maintenanceTimeInterval = 21600000 # default is 6 hours
-  proposalExpireTime = 259200000 # default is 3 days
 }
 
 node.discovery = {
@@ -169,8 +164,8 @@ Besides the above settings, there are many fields you can modify to customize th
 For example, you could change these block settings to smaller values to speed up maintenance or proposal logic changes:
 ```
 block = {
-  maintenanceTimeInterval = 300000 # 5mins, nile net is 5mins, mainnet and default is 6 hours
-  proposalExpireTime = 600000 # 10mins, nile net is 5mins, mainnet and default is 3 days
+  maintenanceTimeInterval = 300000 # 5mins, default is 6 hours
+  proposalExpireTime = 600000 # 10mins, default is 3 days
 }
 ``` 
 You could also enable the following committee-approved settings with `1`:
