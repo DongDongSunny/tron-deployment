@@ -91,18 +91,23 @@ docker run -it --name tron -d -p 8090:8090 -p 8091:8091 -p 18888:18888 -p 18888:
 The `-v` flag specifies the directory that the container needs to map to the host machine.
 In the example above, the host file `/host/path/java-tron/conf/config-localtest.conf` will be used. For example, you can refer to the java-tron [config-localtest](https://github.com/tronprotocol/java-tron/blob/develop/framework/src/main/resources/config-localtest.conf).
 
-Inside the config file `node.p2p.version` is used to set the P2P network id. Only nodes with the same network id can shake hands successfully.
-- TRON mainnet: node.p2p.version=11111
-- Nile testnet: node.p2p.version = 201910292
-- Private network：set to other values
-
 Flags after `tronprotocol/java-tron` are used for java-tron start-up arguments:
 - `-jvm` used for java virtual machine, the parameters must be enclosed in double quotes and braces. `"{-Xmx10g -Xms10g}"` sets the maximum and initial heap size to 10GB.
 - `-c` defines the configuration file to use.
 - `-d` defines the database file to use. You can mount a directory for `datadir` with snapshots. Please refer to [**Lite-FullNode**](https://tronprotocol.github.io/documentation-en/using_javatron/backup_restore/#_5). This can save time by syncing from a near-latest block number.
 - `-w` means to start as a witness. You need to fill the `localwitness` field with private keys in configure file. Refer to the [**Run as Witness**](https://tronprotocol.github.io/documentation-en/using_javatron/installing_javatron/#startup-a-fullnode-that-produces-blocks). If you want to use keystore + password method, make sure the keystore is inside the mounted directory and remove `-d` to interact with console for password input.
 
-Please note that if you want to switch to a different network, such as Mainnet or Nile, in addition to updating the node.p2p.version, you also need to ensure that the data snapshot you download corresponds to the correct network.
+Inside the `config-localtest.conf` file `node.p2p.version` is used to set the P2P network id. Only nodes with the same network id can shake hands successfully.
+- TRON mainnet: node.p2p.version=11111
+- Nile testnet: node.p2p.version = 201910292
+- Private network：set to other values
+
+Please note that if you want to switch to a different network, such as Mainnet or Nile, make sure you change the following:
+- In the configuration file：
+  - Set `genesis.block` equal with [Mainnet]((https://github.com/tronprotocol/tron-deployment/blob/master/main_net_config.conf#L454)) or [Nile Test](https://github.com/tronprotocol/tron-deployment/blob/master/test_net_config.conf#L426).
+  - Set `seed.node` with the correct IP list. Refer to the [Mainnet seeds](https://github.com/tronprotocol/tron-deployment/blob/master/main_net_config.conf#L410) and [Nile Testnet seeds](https://github.com/tronprotocol/tron-deployment/blob/master/test_net_config.conf#L404).
+  - Set `node.p2p.version` to the correct value.
+- Ensure that the data snapshot you download corresponds to the correct network.
 
 ## Interact with FullNode
 After the fullnode runs successfully, you can interact with it using the HTTP API or wallet-cli. For more details, please refer to [guidance](https://tronprotocol.github.io/documentation-en/getting_started/getting_started_with_javatron/#interacting-with-java-tron-nodes-using-curl).
@@ -133,6 +138,11 @@ Response:
 }
 ```
 **Notice**: Before the local full node has synced with the latest block transactions, requests for account state or transaction information may be outdated or empty.
+
+### Close Docker Application 
+Java-Tron supports application shutdown with `kill -15`, which sends a `SIGTERM` signal to the application, allowing it to gracefully shut down. Java-Tron is also compatible with force shutdown using `kill -9`, which sends a `SIGKILL` signal. 
+
+Thus, you can use the command `docker stop <container_id>` or `docker kill <container_id>` to close the Java-Tron container.
 
 ## Troubleshot
 After starting the docker container, use `docker exec -it tron tail -f ./logs/tron.log` to check if the full node is functioning as expected and to identify any errors when interacting with the full node.
