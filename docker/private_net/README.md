@@ -19,12 +19,12 @@ Please download and install the latest version of Docker from the official Docke
 * Docker Installation for [Linux](https://docs.docker.com/desktop/setup/install/linux/)
 
 ## Quick-Start Using Docker
-Download the files [private_network_quick_start.sh](https://github.com/tronprotocol/tron-deployment/blob/master/docker/private_net/private_network_quick_start.sh) and [docker-compose.yml](https://github.com/tronprotocol/tron-deployment/blob/master/docker/private_net/docker-compose.yml) from GitHub. Place them in the same directory and run the quick start shell script.
+Download the folder [private_net](https://github.com/tronprotocol/tron-deployment/blob/master/docker/private_net/) and [docker-compose.yml](https://github.com/tronprotocol/tron-deployment/blob/master/docker/private_net/docker-compose.yml) from GitHub. Enter the directory and run the docker-composer.
 ```
-chmod +x private_network_quick_start.sh
-./private_network_quick_start.sh 
+cd ./private_net
+docker-compose up -d
 ```
-The shell script downloads two configuration files and starts the Docker composer. A Tron private network will be started with one [SR](https://tronprotocol.github.io/documentation-en/mechanism-algorithm/sr/#super-representative) and a normal FullNode.
+A Tron private network will be started with one [SR](https://tronprotocol.github.io/documentation-en/mechanism-algorithm/sr/#super-representative) and a normal FullNode.
 
 Check the witness logs by running the command below:
 ```
